@@ -1,0 +1,101 @@
+{
+  "world": {
+    "predict": { "epsilon": 0.000001, "cutoff": 60, "halflife": 100, "snap": 5, "below": 0.0001 },
+    "defs": "climb",
+    "loader": {
+      "assets": {
+        "climb": { "type": "json", "url": "/games/demo_castle/assets/climb.json", "preload": true },
+        "land": { "type": "json", "url": "/games/demo_castle/assets/land.json", "preload": true },
+        "walk": { "type": "json", "url": "/games/demo_castle/assets/castle.walk.json", "preload": true },
+        "castle": { "type": "model", "url": "/games/demo_castle/assets/castle.glb", "preload": true },
+        "rough-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "rough-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "rough-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "ashlar-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "ashlar-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "ashlar-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "mortar-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "mortar-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "mortar-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "floor-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "floor-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "floor-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "roof-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "roof-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "roof-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "meadow-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/meadow-color-1024.webp", "wrap": "repeat" },
+        "meadow-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/meadow-normal-1024.webp", "space": "linear", "wrap": "repeat" },
+        "rock-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/rock-color-1024.webp", "wrap": "repeat" },
+        "rock-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/rock-normal-1024.webp", "space": "linear", "wrap": "repeat" }
+      }
+    },
+    "terrain3d": {
+      "field": "land",
+      "rings": [
+        { "reach": 64, "seg": 256 },
+        { "reach": 320, "seg": 128 },
+        { "reach": 2000, "seg": 100 }
+      ],
+      "shadowReach": 64,
+      "budget": 8,
+      "seabed": false,
+      "preload": true
+    },
+    "walker": {
+      "kinds": {
+        "climber": {
+          "radius": 0.3, "height": 1.75, "accel": 12, "airAccel": 2, "turnRate": 14, "gravity": 20, "jumpH": 1.1,
+          "step": 0.45, "maxSlope": 0.9, "slopeBand": 0.2, "slide": 4, "wade": 0.8, "span": 0.3, "probe": 0.5, "seekSpeed": 3
+        }
+      },
+      "mods": { "height": "terrain3d", "depth": "terrain3d" }
+    }
+  },
+  "plugins": ["loader", "scenemanager", "player", "terrain3d", "render3d", "chasecamera3d"],
+  "seats": 1,
+  "prefabs": {
+    "engine": { "dt": 0.016666666666666666, "width": 1280, "height": 720 },
+    "scenemanager": { "out": {} },
+    "loader": {},
+    "render3d": {
+      "camera": { "fov": 60, "near": 0.1, "far": 4000, "at": [0, 22, -40], "look": [0, 18, 0] },
+      "pixelRatio": 2,
+      "tone": "neutral",
+      "exposure": 1,
+      "shadows": "soft",
+      "background": "#a9c3dc"
+    },
+    "start": { "slot": 0, "at": [0, 0], "yaw": 0, "pitch": 0.3 },
+    "player": {
+      "seat": 0,
+      "stood": false,
+      "as": "climber",
+      "pos": [0, 0, 0],
+      "yaw": 0,
+      "vel": [0, 0, 0],
+      "grounded": false,
+      "sliding": false,
+      "speed": 0,
+      "side": 0,
+      "turned": 0,
+      "want": [0, 0],
+      "face": null,
+      "jump": false,
+      "letgo": false,
+      "stick": [0, 0],
+      "look": { "yaw": 0, "pitch": 0.3, "dist": 6 },
+      "lift": 1.5,
+      "hang": null,
+      "along": 0,
+      "rise": null,
+      "cool": 0
+    },
+    "castle": {}
+  },
+  "actors": [
+    { "is": "scenemanager" },
+    { "is": "loader" },
+    { "is": "castle", "structure": "keep", "at": [-17, 16.271146212121465, -7] },
+    { "is": "start", "slot": 0, "at": [0, -30], "yaw": 0, "pitch": 0.3 }
+  ]
+}

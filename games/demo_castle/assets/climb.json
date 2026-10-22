@@ -1,0 +1,39 @@
+{
+  "player": {
+    "run": 5,
+    "sens": 0.0025,
+    "camera": { "minPitch": -0.6, "maxPitch": 1.4 },
+    "keys": {
+      "stick": ["a", "d", "w", "s"],
+      "jump": " ",
+      "letgo": "c",
+      "drag": "Mouse2"
+    },
+    "body": { "radius": 0.3, "colour": "#c8643c", "nose": [0.14, 0.1, 0.2] },
+    "climb": {
+      "reach": { "above": 0.45, "below": 0.15, "out": 0.6 },
+      "hang": { "depth": 1.95, "off": 0.36 },
+      "shimmy": 1.4,
+      "join": { "gap": 0.35, "rise": 0.4 },
+      "pull": { "time": 0.7, "in": 0.45 },
+      "leap": { "back": [4, 5.5], "side": [3.5, 4.5], "up": 5.5 },
+      "cool": 0.3
+    }
+  },
+  "castle": {
+    "model": "castle",
+    "walk": "walk",
+    "wear": {
+      "rough": { "color": "rough-color", "normal": "rough-normal", "roughness": "rough-roughness", "metres": 1.5 },
+      "ashlar": { "color": "ashlar-color", "normal": "ashlar-normal", "roughness": "ashlar-roughness", "metres": 1.5 }
+    },
+    "mortar": { "color": "mortar-color", "normal": "mortar-normal", "roughness": "mortar-roughness", "metres": 1.0 },
+    "parts": {
+      "floor": { "color": "floor-color", "normal": "floor-normal", "roughness": "floor-roughness", "metres": 2.0 },
+      "roof": { "color": "roof-color", "normal": "roof-normal", "roughness": "roof-roughness", "metres": 2.0 }
+    },
+    "relief": { "steps": 8, "near": 30, "shade": 0.5 },
+    "hemi": { "sky": "#dfe9f5", "ground": "#4a4636", "intensity": 1.1 },
+    "sun": { "colour": "#fff1dc", "intensity": 2.6, "from": [-0.5, 1, -0.6], "shadow": { "map": 4096, "half": 60, "far": 400, "bias": -0.0002 } }
+  }
+}

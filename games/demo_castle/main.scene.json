@@ -1,0 +1,77 @@
+{
+  "world": {
+    "predict": { "epsilon": 0.000001, "cutoff": 60, "halflife": 100, "snap": 5, "below": 0.0001 },
+    "defs": "demo_castle",
+    "loader": {
+      "assets": {
+        "demo_castle": { "type": "json", "url": "/games/demo_castle/assets/demo_castle.json", "preload": true },
+        "castle": { "type": "model", "url": "/games/demo_castle/assets/castle.glb", "preload": true },
+        "rough-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "rough-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "rough-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "ashlar-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "ashlar-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "ashlar-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "mortar-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "mortar-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "mortar-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "floor-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "floor-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "floor-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "roof-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
+        "roof-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
+        "roof-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 }
+      }
+    },
+    "ui": {
+      "panels": {
+        "caption": { "anchor": "top-left", "at": [16, 16], "size": [900, 140], "layer": 0 },
+        "labels": { "anchor": "top-left", "size": [1280, 720], "layer": 0 }
+      },
+      "keys": { "up": "ArrowUp", "down": "ArrowDown", "left": "ArrowLeft", "right": "ArrowRight", "press": ["Enter"], "back": "Escape" },
+      "styles": {
+        "caption.title": { "fontFamily": "monospace", "fontSize": 20, "fontWeight": "bold", "fill": 16765562, "stroke": { "color": 0, "width": 4, "join": "round" } },
+        "caption.text": { "fontFamily": "monospace", "fontSize": 14, "fill": 15658734, "stroke": { "color": 0, "width": 3, "join": "round" } },
+        "caption.keys": { "fontFamily": "monospace", "fontSize": 12, "fill": 11184810, "stroke": { "color": 0, "width": 3, "join": "round" } },
+        "label": { "fontFamily": "monospace", "fontSize": 13, "fill": 16777215, "align": "center", "stroke": { "color": 0, "width": 3, "join": "round" } }
+      }
+    }
+  },
+  "plugins": ["loader", "scenemanager", "player", "render3d", "chasecamera3d", "ui"],
+  "seats": 1,
+  "prefabs": {
+    "engine": { "dt": 0.016666666666666666, "width": 1280, "height": 720 },
+    "scenemanager": { "out": {} },
+    "loader": {},
+    "render3d": {
+      "camera": { "fov": 55, "near": 0.1, "far": 4000, "at": [0, 30, -170], "look": [0, 5, 0] },
+      "pixelRatio": 2,
+      "tone": "neutral",
+      "exposure": 1,
+      "shadows": "soft",
+      "background": "#a9c3dc"
+    },
+    "start": { "slot": 0, "at": [0, 0], "up": 30, "yaw": 0, "pitch": 0.18 },
+    "player": {
+      "seat": 0,
+      "stood": false,
+      "pos": [0, 0, 0],
+      "look": { "yaw": 0, "pitch": 0.18, "dist": 0.1 },
+      "lift": 0,
+      "stick": [0, 0],
+      "up": false,
+      "down": false,
+      "fast": false,
+      "pace": 1,
+      "mode": "one",
+      "structure": 3
+    },
+    "lineup": {}
+  },
+  "actors": [
+    { "is": "scenemanager" },
+    { "is": "loader" },
+    { "is": "lineup" },
+    { "is": "start", "slot": 0, "at": [-22, -42], "up": 22, "yaw": 0.48, "pitch": 0.4 }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "program": {
+    "world": 4000,
+    "hscale": 60,
+    "sea": 0.5,
+    "flood": false,
+    "out": "ground",
+    "nodes": [
+      { "id": "roll", "op": "noise", "kind": "simplex", "freq": 9, "seed": 21 },
+      { "id": "bumps", "op": "noise", "kind": "simplex", "freq": 90, "seed": 22 },
+      { "id": "rolled", "op": "combine", "mode": "lerp", "a": "roll", "b": "bumps", "t": 0.08 },
+      { "id": "hills", "op": "remap", "input": "rolled", "inLo": 0.1, "inHi": 0.9, "outLo": 0, "outHi": 0.6, "ease": "smooth" },
+      { "id": "ground", "op": "clearing", "input": "hills", "flat": 45, "floor": 0 }
+    ]
+  },
+  "analysis": {
+    "slopeStep": 2,
+    "curveStep": 6,
+    "positionRadius": 30,
+    "occlusionRadius": 60,
+    "occlusionSteps": 6,
+    "cliffProbe": 20,
+    "cliffSlope": 0.6,
+    "cliffDrop": 20,
+    "flatAngle": 0.03,
+    "records": 50000
+  },
+  "ground": {
+    "compose": "stack",
+    "heightBlend": { "amount": 2, "depth": 0.1 },
+    "far": { "amount": 0.7, "scale": 7.3 },
+    "roughness": 0.95,
+    "layers": [
+      {
+        "name": "meadow", "map": "meadow-color", "normal": "meadow-normal", "scale": 36,
+        "warp": [
+          { "freq": 0.005, "amp": 30, "stretch": [1, 1, 1], "rotate": 0 },
+          { "freq": 0.035, "amp": 3, "stretch": [1, 1, 1], "rotate": 0.7 }
+        ]
+      },
+      {
+        "name": "rock", "map": "rock-color", "normal": "rock-normal", "scale": 30, "tri": true, "sharp": 12,
+        "where": [{ "q": "slope", "lo": 0.25, "hi": 0.4 }],
+        "noise": { "freq": 0.12, "amp": 0.85 }, "edge": 0.35,
+        "warp": [{ "freq": 0.005, "amp": 20, "stretch": [1, 1, 1], "rotate": 1.1 }]
+      }
+    ]
+  },
+  "surfaces": {},
+  "layers": []
+}

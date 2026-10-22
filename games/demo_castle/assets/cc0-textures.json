@@ -1,0 +1,13 @@
+{
+  "folder": "stone",
+  "sizes": [1024],
+  "sets": {
+    "rough": { "set": "Rock028_4K-JPG", "maps": ["color", "normal", "roughness"] },
+    "ashlar": { "set": "Rock018_4K-JPG", "maps": ["color", "normal", "roughness"] },
+    "mortar": { "set": "Concrete036_4K-JPG", "maps": ["color", "normal", "roughness"] },
+    "floor": { "set": "flagstone_1-4K", "maps": ["color", "normal", "roughness"] },
+    "roof": { "set": "grey_roof_tiles_02_4K-JPG", "maps": ["color", "normal", "roughness"] },
+    "meadow": { "set": "aerial_grass_rock_4K-JPG", "maps": ["color", "normal"] },
+    "rock": { "set": "Rock007_4K-JPG", "maps": ["color", "normal"] }
+  }
+}
