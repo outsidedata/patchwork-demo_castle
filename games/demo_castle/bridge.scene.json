@@ -1,0 +1,127 @@
+{
+  "world": {
+    "seed": 11,
+    "defs": "bridge",
+    "loader": {
+      "assets": {
+        "bridge": { "type": "json", "url": "/games/demo_castle/assets/bridge.json", "preload": true },
+        "bridgeNav": { "type": "json", "url": "/games/demo_castle/assets/bridge.nav.json", "preload": true },
+        "heroRig": { "type": "json", "url": "/games/demo_castle/assets/player.rig.json", "preload": true },
+        "mechworker": { "type": "model", "url": "/games/demo_castle/assets/mechworker.glb", "preload": true }
+      }
+    },
+    "shapes3d": {
+      "kinds": {
+        "field": { "shape": { "box": { "size": [60, 0.2, 60] } }, "look": { "colour": "#5d6b43", "roughness": 1 } },
+        "ramp": { "shape": { "plane": { "size": [2.5, 8], "tilt": 0.3587706702705722 } }, "look": { "colour": "#8a6f4e", "roughness": 0.9, "thick": 0.3 } },
+        "deck": { "shape": { "box": { "size": [2.5, 0.4, 16] } }, "look": { "colour": "#8a6f4e", "roughness": 0.9 } },
+        "pier": { "shape": { "cylinder": { "radius": 0.35, "height": 2.6 } }, "look": { "colour": "#7a6f62", "roughness": 0.8, "sides": 16 } }
+      }
+    },
+    "solids": {
+      "mods": { "models": "shapes3d" }
+    },
+    "walker": {
+      "kinds": {
+        "player": {
+          "radius": 0.3, "height": 1.75, "accel": 12, "airAccel": 2, "turnRate": 14, "gravity": 20, "jumpH": 1.1,
+          "step": 0.45, "maxSlope": 0.9, "slopeBand": 0.2, "slide": 4, "wade": 0.8, "span": 0.3, "probe": 0.5, "seekSpeed": 3
+        }
+      },
+      "mods": { "behaviors": "shapes3d" }
+    },
+    "anim": {
+      "still": 0.05, "shift": 0.75, "leap": 0.5, "landFall": 7.5, "moves": 0.05, "turns": 30,
+      "kinds": {
+        "player": {
+          "rig": "heroRig", "model": "mechworker", "fade": 0.15,
+          "reads": { "pos": "pos", "yaw": "yaw", "vel": "vel", "grounded": "grounded", "limp": "limp" }
+        }
+      }
+    },
+    "nav3d": {
+      "graphs": { "bridge": { "asset": "bridgeNav" } }
+    },
+    "crowd3d": {
+      "bodies": { "mechworker": "mechworker" },
+      "clips": ["idle", "walk", "run"],
+      "rate": 30,
+      "kinds": ["visitor", "spiraller"]
+    },
+    "npc3d": {
+      "mods": { "route": "nav3d", "behaviors": "fortress" }
+    },
+    "shipped": { "plugins": ["fortress"] }
+  },
+  "plugins": ["loader", "scenemanager", "player", "crowd3d", "anim", "npc3d", "environment3d", "solids", "nav3d", "render3d", "chasecamera3d"],
+  "seats": 1,
+  "prefabs": {
+    "engine": { "dt": 0.016666666666666666, "width": 1280, "height": 720 },
+    "scenemanager": { "out": {} },
+    "loader": {},
+    "environment3d": {
+      "sun": {
+        "at": [-30, 60, 40],
+        "color": "#fff1dc",
+        "power": 2.6,
+        "shadow": { "map": 4096, "half": 40, "near": 1, "far": 200, "distance": 100, "bias": -0.0003, "normalBias": 0.03 }
+      },
+      "sky": { "color": "#cfdcec", "ground": "#4a4636", "power": 1.1 }
+    },
+    "render3d": {
+      "camera": { "fov": 60, "near": 0.1, "far": 2000, "at": [0, 6, -30], "look": [0, 2, 0] },
+      "pixelRatio": 1,
+      "tone": "neutral",
+      "exposure": 1,
+      "shadows": "soft",
+      "background": "#a9c3dc"
+    },
+    "start": { "slot": 0, "pos": [0, 0, 0], "yaw": 0 },
+    "npc3d": { "time": 0, "sounds": [], "next": 1 },
+    "field": { "pos": [0, 0, 0], "yaw": 0 },
+    "ramp": { "pos": [0, 0, 0], "yaw": 0 },
+    "deck": { "pos": [0, 0, 0], "yaw": 0 },
+    "pier": { "pos": [0, 0, 0], "yaw": 0 },
+    "player": {
+      "seat": 0,
+      "stood": false,
+      "pos": [0, 0, 0], "yaw": 0, "vel": [0, 0, 0], "grounded": false, "sliding": false, "speed": 0, "side": 0, "turned": 0,
+      "want": [0, 0], "face": null, "jump": false,
+      "stick": [0, 0], "slow": false,
+      "look": { "yaw": 0, "pitch": 0.25, "dist": 6 },
+      "lift": 1.5,
+      "limp": false
+    },
+    "visitor": {
+      "pos": [0, 0, 0], "to": [0, 0, 0], "yaw": 0, "speed": 0, "since": 0, "body": "mechworker", "clip": "idle", "holding": {},
+      "look": 0, "gaze": null, "seen": [], "noticing": {}, "facts": [], "doing": "", "until": 0, "wake": 0, "arrived": false, "told": null, "route": null,
+      "home": "", "going": null
+    },
+    "spiraller": {
+      "pos": [0, 0, 0], "to": [0, 0, 0], "through": null, "yaw": 0, "speed": 0, "since": 0, "body": "mechworker", "clip": "idle", "holding": {},
+      "look": 0, "gaze": null, "seen": [], "noticing": {}, "facts": [], "doing": "", "until": 0, "wake": 0, "arrived": false, "told": null, "route": null,
+      "home": "", "going": null
+    }
+  },
+  "actors": [
+    { "is": "scenemanager" },
+    { "is": "loader" },
+    { "is": "npc3d" },
+    { "is": "field", "pos": [0, -0.2, 0], "yaw": 0 },
+    { "is": "ramp", "pos": [-12, 1.5, 0], "yaw": 1.5707963267948966 },
+    { "is": "deck", "pos": [0, 2.6, 0], "yaw": 1.5707963267948966 },
+    { "is": "ramp", "pos": [12, 1.5, 0], "yaw": -1.5707963267948966 },
+    { "is": "pier", "pos": [-7.5, 0, 0], "yaw": 0 },
+    { "is": "pier", "pos": [7.5, 0, 0], "yaw": 0 },
+    { "is": "start", "slot": 0, "pos": [0, 0, -24], "yaw": 0 },
+    { "is": "visitor", "home": "west field" },
+    { "is": "visitor", "home": "east field" },
+    { "is": "visitor", "home": "south road" },
+    { "is": "visitor", "home": "north road" },
+    { "is": "visitor", "home": "bridge" },
+    { "is": "visitor", "home": "under the bridge" },
+    { "is": "visitor", "home": "west end" },
+    { "is": "visitor", "home": "east end" },
+    { "is": "spiraller", "home": "spiral foot" }
+  ]
+}

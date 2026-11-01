@@ -1,0 +1,55 @@
+{
+  "player": {
+    "run": 4.5,
+    "walk": 1.5,
+    "sens": 0.004,
+    "camera": { "minPitch": -0.4, "maxPitch": 1.3, "minDist": 1.5, "maxDist": 30, "zoom": 0.001 },
+    "keys": { "stick": ["a", "d", "w", "s"], "slow": "Shift", "jump": " ", "drag": "Mouse2" }
+  },
+  "spiraller": {
+    "body": "crowd3d",
+    "sight": { "eye": 1.6, "at": 1.4, "cone": 110, "range": 10, "kinds": [] },
+    "look": { "rate": 3, "reach": 0 },
+    "notice": { "time": 1, "fall": 1 },
+    "memory": 1,
+    "think": 1,
+    "stay": 0.5,
+    "whim": 1,
+    "react": [0.3, 1],
+    "behaviors": {
+      "tour": {
+        "weight": 1,
+        "graph": "bridge",
+        "places": ["spiral foot", "spiral top"],
+        "clip": "walk",
+        "speed": 1.4,
+        "stand": "idle",
+        "stay": [1, 2],
+        "rest": [1, 3]
+      }
+    }
+  },
+  "visitor": {
+    "body": "crowd3d",
+    "sight": { "eye": 1.6, "at": 1.4, "cone": 110, "range": 10, "kinds": [] },
+    "look": { "rate": 3, "reach": 0 },
+    "notice": { "time": 1, "fall": 1 },
+    "memory": 1,
+    "think": 1,
+    "stay": 0.5,
+    "whim": 1,
+    "react": [0.3, 1],
+    "behaviors": {
+      "tour": {
+        "weight": 1,
+        "graph": "bridge",
+        "places": ["west field", "east field", "south road", "north road", "bridge", "under the bridge", "west end", "east end"],
+        "clip": "walk",
+        "speed": 1.4,
+        "stand": "idle",
+        "stay": [2, 8],
+        "rest": [1, 3]
+      }
+    }
+  }
+}
