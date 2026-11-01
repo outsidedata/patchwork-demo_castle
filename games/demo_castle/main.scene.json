@@ -1,77 +1,135 @@
 {
+  "extends": "assets/smallville.town.partial_scene.json",
   "world": {
-    "predict": { "epsilon": 0.000001, "cutoff": 60, "halflife": 100, "snap": 5, "below": 0.0001 },
+    "seed": 11,
     "defs": "demo_castle",
     "loader": {
       "assets": {
         "demo_castle": { "type": "json", "url": "/games/demo_castle/assets/demo_castle.json", "preload": true },
-        "castle": { "type": "model", "url": "/games/demo_castle/assets/castle.glb", "preload": true },
-        "rough-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
-        "rough-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "rough-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/rough-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "ashlar-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
-        "ashlar-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "ashlar-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/ashlar-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "mortar-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
-        "mortar-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "mortar-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/mortar-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "floor-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
-        "floor-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "floor-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/floor-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "roof-color": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-color-1024.webp", "preload": true, "wrap": "repeat", "anisotropy": 8 },
-        "roof-normal": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-normal-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 },
-        "roof-roughness": { "type": "texture", "url": "/games/demo_castle/assets/stone/roof-roughness-1024.webp", "preload": true, "space": "linear", "wrap": "repeat", "anisotropy": 8 }
+        "town": { "type": "binary", "url": "/games/demo_castle/assets/smallville.town.glb", "preload": true },
+        "rockCol": { "type": "texture", "url": "/games/demo_castle/assets/rock_colour.webp", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "rockDisp": { "type": "texture", "url": "/games/demo_castle/assets/rock_height.webp", "space": "linear", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "rockNrm": { "type": "texture", "url": "/games/demo_castle/assets/rock_normal.webp", "space": "linear", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "mortCol": { "type": "texture", "url": "/games/demo_castle/assets/mortar_colour.webp", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "mortDisp": { "type": "texture", "url": "/games/demo_castle/assets/mortar_height.webp", "space": "linear", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "woodCol": { "type": "texture", "url": "/games/demo_castle/assets/wood_colour.webp", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "woodDisp": { "type": "texture", "url": "/games/demo_castle/assets/wood_height.webp", "space": "linear", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "woodNrm": { "type": "texture", "url": "/games/demo_castle/assets/wood_normal.webp", "space": "linear", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "woodRough": { "type": "texture", "url": "/games/demo_castle/assets/wood_roughness.webp", "space": "linear", "wrap": "repeat", "anisotropy": 16, "preload": true },
+        "townNav": { "type": "json", "url": "/games/demo_castle/assets/smallville.town.nav.json", "preload": true },
+        "heroRig": { "type": "json", "url": "/games/demo_castle/assets/player.rig.json", "preload": true },
+        "mechworker": { "type": "model", "url": "/games/demo_castle/assets/mechworker.glb", "preload": true }
       }
     },
-    "ui": {
-      "panels": {
-        "caption": { "anchor": "top-left", "at": [16, 16], "size": [900, 140], "layer": 0 },
-        "labels": { "anchor": "top-left", "size": [1280, 720], "layer": 0 }
+    "walker": {
+      "kinds": {
+        "player": {
+          "radius": 0.3, "height": 1.75, "accel": 12, "airAccel": 2, "turnRate": 14, "gravity": 20, "jumpH": 1.1,
+          "step": 0.45, "maxSlope": 0.9, "slopeBand": 0.2, "slide": 4, "wade": 0.8, "span": 0.3, "probe": 0.5, "seekSpeed": 3
+        }
       },
-      "keys": { "up": "ArrowUp", "down": "ArrowDown", "left": "ArrowLeft", "right": "ArrowRight", "press": ["Enter"], "back": "Escape" },
-      "styles": {
-        "caption.title": { "fontFamily": "monospace", "fontSize": 20, "fontWeight": "bold", "fill": 16765562, "stroke": { "color": 0, "width": 4, "join": "round" } },
-        "caption.text": { "fontFamily": "monospace", "fontSize": 14, "fill": 15658734, "stroke": { "color": 0, "width": 3, "join": "round" } },
-        "caption.keys": { "fontFamily": "monospace", "fontSize": 12, "fill": 11184810, "stroke": { "color": 0, "width": 3, "join": "round" } },
-        "label": { "fontFamily": "monospace", "fontSize": 13, "fill": 16777215, "align": "center", "stroke": { "color": 0, "width": 3, "join": "round" } }
+      "mods": { "behaviors": "shapes3d" }
+    },
+    "anim": {
+      "still": 0.05, "shift": 0.75, "leap": 0.5, "landFall": 7.5, "moves": 0.05, "turns": 30,
+      "kinds": {
+        "player": {
+          "rig": "heroRig", "model": "mechworker", "fade": 0.15,
+          "reads": { "pos": "pos", "yaw": "yaw", "vel": "vel", "grounded": "grounded", "limp": "limp" }
+        }
       }
-    }
+    },
+    "nav3d": {
+      "graphs": { "town": { "asset": "townNav" } }
+    },
+    "crowd3d": {
+      "bodies": { "mechworker": "mechworker" },
+      "clips": ["idle", "walk", "run"],
+      "rate": 30,
+      "kinds": ["visitor"]
+    },
+    "npc3d": {
+      "mods": { "route": "nav3d", "behaviors": "fortress" }
+    },
+    "shipped": { "plugins": ["fortress"] }
   },
-  "plugins": ["loader", "scenemanager", "player", "render3d", "chasecamera3d", "ui"],
+  "plugins": ["loader", "scenemanager", "player", "crowd3d", "anim", "npc3d", "environment3d", "nav3d", "render3d", "chasecamera3d"],
   "seats": 1,
   "prefabs": {
     "engine": { "dt": 0.016666666666666666, "width": 1280, "height": 720 },
     "scenemanager": { "out": {} },
     "loader": {},
+    "environment3d": {
+      "sun": {
+        "at": [-30, 60, 40],
+        "color": "#fff1dc",
+        "power": 2.6,
+        "shadow": { "map": 4096, "half": 60, "near": 1, "far": 200, "distance": 100, "bias": -0.0003, "normalBias": 0.03 }
+      },
+      "sky": { "color": "#cfdcec", "ground": "#4a4636", "power": 1.1 }
+    },
     "render3d": {
-      "camera": { "fov": 55, "near": 0.1, "far": 4000, "at": [0, 30, -170], "look": [0, 5, 0] },
-      "pixelRatio": 2,
+      "camera": { "fov": 60, "near": 0.1, "far": 2000, "at": [0, 6, 33], "look": [0, 2, 21] },
+      "pixelRatio": 1,
       "tone": "neutral",
       "exposure": 1,
       "shadows": "soft",
       "background": "#a9c3dc"
     },
-    "start": { "slot": 0, "at": [0, 0], "up": 30, "yaw": 0, "pitch": 0.18 },
+    "start": { "slot": 0, "pos": [0, 0, 0], "yaw": 0 },
+    "npc3d": { "time": 0, "sounds": [], "next": 1 },
+    "castle": {},
     "player": {
       "seat": 0,
       "stood": false,
-      "pos": [0, 0, 0],
-      "look": { "yaw": 0, "pitch": 0.18, "dist": 0.1 },
-      "lift": 0,
-      "stick": [0, 0],
-      "up": false,
-      "down": false,
-      "fast": false,
-      "pace": 1,
-      "mode": "one",
-      "structure": 3
+      "pos": [0, 0, 0], "yaw": 0, "vel": [0, 0, 0], "grounded": false, "sliding": false, "speed": 0, "side": 0, "turned": 0,
+      "want": [0, 0], "face": null, "jump": false,
+      "stick": [0, 0], "slow": false,
+      "look": { "yaw": 0, "pitch": 0.25, "dist": 6 },
+      "lift": 1.5,
+      "limp": false
     },
-    "lineup": {}
+    "visitor": {
+      "pos": [0, 0, 0], "to": [0, 0, 0], "yaw": 0, "speed": 0, "since": 0, "body": "mechworker", "clip": "idle", "holding": {},
+      "look": 0, "gaze": null, "seen": [], "noticing": {}, "facts": [], "doing": "", "until": 0, "wake": 0, "arrived": false, "told": null, "route": null,
+      "home": "", "going": null
+    }
   },
   "actors": [
     { "is": "scenemanager" },
     { "is": "loader" },
-    { "is": "lineup" },
-    { "is": "start", "slot": 0, "at": [-22, -42], "up": 22, "yaw": 0.48, "pitch": 0.4 }
+    { "is": "npc3d" },
+    { "is": "castle" },
+    { "is": "start", "slot": 0, "pos": [0, 0.05, 22], "yaw": 3.141592653589793 },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" },
+    { "is": "visitor", "home": "" }
   ]
 }

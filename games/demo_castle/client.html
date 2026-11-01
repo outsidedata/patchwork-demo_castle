@@ -11,19 +11,16 @@
   <body>
     <script type="module">
       // One seat over a socket. The server is `node --experimental-strip-types games/demo_castle/demo_castle.server.ts`.
-      // The page runs the scene its seat is on ahead of the server (`addons/predict`): it draws the
-      // seat's own `player` row from its copy, on the frame after the key, and every other row from the
-      // server's packets. The view `predict` makes holds one client, for the scene the seat is on, and
-      // `mount` gives each one its canvases: the game's, and the UI's over it in the same grid cell, for
-      // a scene that names each. `tap` records every frame when the page's address asks for it,
-      // `?tap=<name>` (addons/simulator).
-      import { link } from '#addons/scenemanager/scenemanager.addon.ts'
-      import { predict } from '#addons/predict/predict.addon.ts'
+      // The page holds one client, for the scene the seat is on: `view` makes it when the seat
+      // arrives and closes it when the seat leaves, and `mount` gives each one its canvases: the
+      // game's, and the UI's over it in the same grid cell, for a scene that names each. `tap`
+      // records every frame when the page's address asks for it, `?tap=<name>` (addons/simulator).
+      import { link, view } from '#addons/scenemanager/scenemanager.addon.ts'
       import { tap } from '#addons/simulator/simulator.addon.ts'
       import { dial } from '#addons/socket/socket.addon.ts'
       import file from './demo_castle.scene.json'
 
-      const page = tap(dial(`ws://${location.hostname}:${file.prefabs.scenemanager.port}`), wire => predict(link(wire), file, import.meta.url, (me, scene) => {
+      const page = tap(dial(`ws://${location.hostname}:${file.prefabs.scenemanager.port}`), wire => view(link(wire), file, import.meta.url, (me, scene) => {
         for (const surface of [me.plugins.render3d ?? me.plugins.render2d, me.plugins.ui]) {
           if (!surface) continue
           const canvas = document.createElement('canvas')
@@ -34,9 +31,8 @@
         }
       }))
 
-      const loop = async now => {
-        page.input()
-        await page.frame(now)
+      const loop = async () => {
+        await page.frame()
         requestAnimationFrame(loop)
       }
       requestAnimationFrame(loop)

@@ -6,37 +6,77 @@
     <style>
       body { margin: 0; background: #0b0b0e; display: grid; place-items: center; height: 100vh }
       canvas { grid-area: 1 / 1 }
-      .lil-gui.root { max-height: 100vh; overflow-y: auto }
+      #readout { position: fixed; left: 8px; bottom: 8px; color: #e8e8e8; font: 13px monospace; white-space: pre; background: #000a; padding: 6px 8px; max-height: 60vh; overflow: hidden }
     </style>
   </head>
   <body>
+    <div id="readout"></div>
     <script type="module">
-      // The testbed: index.html, entering the climb scene, or the scene `?scene=<name>` names (`main`).
-      // The panel, top right, edits this tab's one copy of the climb scene's definitions
-      // (`assets/climb.json`), which the climber's rule reads each step: its run, and every number of
-      // its climb. The truths in this tab are on `window.__scenes` (`__scenes.get('climb').rows`), and
-      // the last error a step or a frame threw on `window.__error`, shown over the page while the loop
-      // goes on.
+      // The testbed: index.html, the manager truth and main in this tab (or the scene `?scene=` names:
+      // `?scene=bridge`), one seat on it over a loopback, stepped on the page's clock. The truths are kept
+      // on `window.__scenes`, the page on `window.__page` and the scene's client (its plugins) on
+      // `window.__client`. The panel turns nav3d's drawing of the scene's graph on and off (`graphs`,
+      // `?graphs=1` on at first), and puts the seat's body on any place of the graph, standing on
+      // whatever is there (`go to`). The readout shows the frames drawn in
+      // the last second and the longest of them, the step, where the seat's body stands and what it
+      // stands on, each visitor's place it is going to and how many places of its route it has still to
+      // get to, or the place it stands at, with the height its feet stand at now and how many times it has
+      // switched courses (the place it is going to changed), and the last five errors
+      // the page threw or wrote. Nothing is written to disk.
+      // A click on a visitor picks it: a yellow ring stands at its feet, a line runs along the route it
+      // is walking to the place it was sent, and the panel's `visitor` folder shows what it is doing and
+      // sends it on. With one picked, a click anywhere else sends it there, along npc3d's route over the
+      // graph, and the folder's `send` sends it to the place `to` names. Sent, it walks there on its `go`
+      // (npc3d's), which the page gives the visitor's definition in its own copy, and stands there until
+      // it is sent again; `tour again` puts it back on its `tour`, and `let go` unpicks it. An order is
+      // given in the visitor's `before` of the next step, the page's copy of the kind wrapped for it.
       import { boot } from '#engine/engine.ts'
       import { accept, load, manager, link, view } from '#addons/scenemanager/scenemanager.addon.ts'
       import { loopback } from '#addons/loopback/loopback.addon.ts'
       import GUI from 'lil-gui'
+      import { bodies } from '#plugins/npc3d/npc3d.sim.ts'
       import { prepared } from '#plugins/loader/loader.sim.ts'
-      import { scene as theScene } from './climb.sim.ts'
       import { sim } from './demo_castle.sim.ts'
+      import { scene as main } from './main.sim.ts'
+      import { visitor } from './visitor.sim.ts'
       import file from './demo_castle.scene.json'
+      import town from './assets/smallville.town.nav.json'
+      import bridge from './assets/bridge.nav.json'
 
-      // The scene the address names: dev.html?scene=<scene>
-      file.prefabs.scenemanager.entry = new URLSearchParams(location.search).get('scene') ?? 'climb'
-      // The tab's one copy of the climb scene's definitions: every rule and look reads this object, so
-      // the panel's edits reach the next step.
-      const defs = await prepared(theScene.world, theScene.world.defs)
+      file.prefabs.scenemanager.entry = new URLSearchParams(location.search).get('scene') ?? file.prefabs.scenemanager.entry
+
+      // A visitor sent somewhere walks there on npc3d's `go` at its tour's pace, and, committed, stands
+      // there until it is sent again or put back on its tour.
+      const defs = await prepared(main.world, main.world.defs)
+      const tour = defs.visitor.behaviors.tour
+      defs.visitor.behaviors.go = { clip: tour.clip, speed: tour.speed, stand: tour.stand, commit: true }
+      // The orders the panel gives, by the visitor's id: [x, y, z] to go there, 'tour' to tour again.
+      const orders = new Map()
+      const before = visitor.before
+      visitor.before = (me, dt, w) => {
+        before(me, dt, w)
+        const o = orders.get(me.id)
+        if (o === undefined) return
+        orders.delete(me.id)
+        if (o === 'tour') visitor.acts.force(me, w, -1, 'tour')
+        else visitor.acts.order(me, w, -1, 'go', o[0], o[1], o[2])
+      }
+
+      const errors = []
+      const caught = e => {
+        errors.push(String(e?.message ?? e))
+        if (errors.length > 5) errors.shift()
+      }
+      addEventListener('error', e => caught(e.error ?? e.message))
+      addEventListener('unhandledrejection', e => caught(e.reason))
+      const written = console.error.bind(console)
+      console.error = (...a) => { caught(a.map(x => x?.message ?? x).join(' ')); written(...a) }
 
       const dt = file.prefabs.engine.dt
       const truth = boot(file, sim)
-      const scenes = await load(truth, import.meta.url)
-      window.__scenes = scenes
+      window.__scenes = await load(truth, import.meta.url)
       const page = view(link(loopback(accept(manager(truth)))), file, import.meta.url, (me, scene) => {
+        window.__client = me
         for (const surface of [me.plugins.render3d ?? me.plugins.render2d, me.plugins.ui]) {
           if (!surface) continue
           const canvas = document.createElement('canvas')
@@ -46,56 +86,147 @@
           surface.mount(canvas)
         }
       })
+      window.__page = page
+      const room = window.__scenes.get(file.prefabs.scenemanager.entry)
+      // the scene's graph, the one its page draws
+      const graph = { main: town, bridge }[file.prefabs.scenemanager.entry]
+      const tagsOf = p => p.data?.nav3d?.tags ?? []
+      const places = [...new Set(graph.places.flatMap(tagsOf))].sort()
+      const me = () => room.rows.find(r => r.kind === 'player')
 
-      // The panel. A press on it stops there, a release does not, and the focus goes back to the page
-      // after a click, so the game's keys keep working.
+      // The panel. A press on it stops at it, so the game's keys are the game's.
       const gui = new GUI({ title: 'demo_castle dev' })
       for (const type of ['keydown', 'keyup', 'click', 'mousedown', 'contextmenu', 'wheel'])
         gui.domElement.addEventListener(type, e => e.stopPropagation())
-      gui.domElement.addEventListener('pointerup', () => requestAnimationFrame(() => {
-        const at = document.activeElement
-        if (gui.domElement.contains(at) && !(at.tagName === 'INPUT' && (at.type === 'text' || at.type === 'number'))) at.blur()
-      }))
-      addEventListener('change', e => { if (gui.domElement.contains(e.target)) e.target.blur() })
+      const views = { graphs: new URLSearchParams(location.search).get('graphs') === '1' }
+      gui.add(views, 'graphs')
+      const jump = { place: places[0], 'go to': () => {
+        const place = graph.places.find(q => tagsOf(q).includes(jump.place))
+        const p = me()
+        if (place && p) { p.data.pos = [...place.point.at]; p.data.vel = [0, 0, 0] }
+      } }
+      gui.add(jump, 'place', places)
+      gui.add(jump, 'go to')
 
-      const p = defs.player, c = p.climb
-      const body = gui.addFolder('climber')
-      body.add(p, 'run', 1, 12, 0.1).name('run (m/s)')
-      const reach = gui.addFolder('reach')
-      reach.add(c.reach, 'above', 0, 1.5, 0.01).name('over the head (m)')
-      reach.add(c.reach, 'below', 0, 1.5, 0.01).name('under the head (m)')
-      reach.add(c.reach, 'out', 0.1, 1.5, 0.01).name('out from the body (m)')
-      const hang = gui.addFolder('hang')
-      hang.add(c.hang, 'depth', 1, 2.5, 0.01).name('feet under the ledge (m)')
-      hang.add(c.hang, 'off', 0.1, 1, 0.01).name('out from the ledge (m)')
-      hang.add(c, 'shimmy', 0.2, 4, 0.05).name('shimmy (m/s)')
-      hang.add(c.join, 'gap', 0, 1, 0.01).name('join gap (m)')
-      hang.add(c.join, 'rise', 0, 1, 0.01).name('join rise (m)')
-      const pull = gui.addFolder('pull up')
-      pull.add(c.pull, 'time', 0.1, 2, 0.01).name('time (s)')
-      pull.add(c.pull, 'in', 0.1, 1.5, 0.01).name('in from the edge (m)')
-      const leap = gui.addFolder('leap')
-      leap.add(c.leap.back, 0, 0, 10, 0.1).name('back out (m/s)')
-      leap.add(c.leap.back, 1, 0, 10, 0.1).name('back up (m/s)')
-      leap.add(c.leap.side, 0, 0, 10, 0.1).name('side along (m/s)')
-      leap.add(c.leap.side, 1, 0, 10, 0.1).name('side up (m/s)')
-      leap.add(c.leap, 'up', 0, 10, 0.1).name('up (m/s)')
-      leap.add(c, 'cool', 0, 1, 0.01).name('regrab after (s)')
+      // The visitor picked, by its id, and its folder.
+      const time = () => room.rows.find(r => r.kind === 'npc3d')?.data.time ?? 0
+      const visitors = () => room.rows.filter(r => r.kind === 'visitor')
+      const picked = { id: null, to: places[0] }
+      const chosen = () => visitors().find(v => v.id === picked.id)
+      const placeAt = place => graph.places.find(q => tagsOf(q).includes(place)).point.at
+      const left = v => (v.data.route ? v.data.route.points.length - v.data.route.leg : 1)
+      // how many times each visitor has switched courses: its place it is going to changed, by its id
+      const switches = new Map()
+      const lastGoing = new Map()
+      const count = () => {
+        for (const v of visitors()) {
+          const was = lastGoing.get(v.id)
+          if (was !== undefined && was !== v.data.going) switches.set(v.id, (switches.get(v.id) ?? 0) + 1)
+          lastGoing.set(v.id, v.data.going)
+        }
+      }
+      const said = {
+        get visitor() { const v = chosen(); return v ? `${v.id} ${v.data.body}` : 'none: click one' },
+        get doing() { const v = chosen(); return v ? (v.data.doing === 'go' ? 'sent' : v.data.doing || 'nothing yet') : '' },
+        get place() {
+          const v = chosen()
+          if (!v) return ''
+          if (v.data.doing === 'go') return v.data.told.map(n => n.toFixed(1)).join(', ')
+          return v.data.going ?? ''
+        },
+        get walking() { const v = chosen(); return v ? (v.data.speed > 0 ? `${left(v)} places left` : 'standing') : '' },
+        get feet() { const v = chosen(); return v ? bodies.crowd3d.where(v, time()).map(n => n.toFixed(2)).join(', ') : '' },
+      }
+      const folder = gui.addFolder('visitor')
+      for (const key of Object.keys(said)) folder.add(said, key).listen().disable()
+      folder.add(picked, 'to', places)
+      folder.add({ send: () => { if (chosen()) orders.set(picked.id, [...placeAt(picked.to)]) } }, 'send')
+      folder.add({ 'tour again': () => { if (chosen()) orders.set(picked.id, 'tour') } }, 'tour again')
+      folder.add({ 'let go': () => { picked.id = null } }, 'let go')
 
-      // Every error a step or a frame throws, over the page and on window.__error; the loop goes on.
-      const shown = document.createElement('pre')
-      shown.style.cssText = 'position:fixed;left:8px;top:8px;margin:0;color:#ff8a80;font:12px monospace;white-space:pre-wrap;max-width:90vw;z-index:9'
-      document.body.appendChild(shown)
+      // The click: on a visitor, within 24 pixels of the line from its feet to its head as the camera
+      // sees it, picks the nearest; anywhere else, with one picked, sends it to what the click meets.
+      const marks = { client: null, ring: null, line: null }
+      const pick = e => {
+        if (gui.domElement.contains(e.target) || e.button !== 0) return
+        const r3 = window.__client?.plugins.render3d
+        if (!r3?.camera || !r3.renderer) return
+        const T = r3.THREE
+        const box = r3.renderer.domElement.getBoundingClientRect()
+        const mx = e.clientX - box.left, my = e.clientY - box.top
+        const screen = p => {
+          const v = new T.Vector3(p[0], p[1], p[2]).project(r3.camera)
+          return v.z > 1 ? null : [(v.x + 1) / 2 * box.width, (1 - v.y) / 2 * box.height]
+        }
+        let best = null, near = 24
+        for (const v of visitors()) {
+          const feet = bodies.crowd3d.where(v, time())
+          const a = screen(feet), b = screen([feet[0], feet[1] + 1.7, feet[2]])
+          if (!a || !b) continue
+          const dx = b[0] - a[0], dy = b[1] - a[1]
+          const t = Math.max(0, Math.min(1, ((mx - a[0]) * dx + (my - a[1]) * dy) / (dx * dx + dy * dy || 1)))
+          const far = Math.hypot(mx - a[0] - t * dx, my - a[1] - t * dy)
+          if (far < near) { near = far; best = v }
+        }
+        if (best) { picked.id = best.id; return }
+        if (!chosen()) return
+        const ray = new T.Raycaster()
+        ray.setFromCamera(new T.Vector2(mx / box.width * 2 - 1, 1 - my / box.height * 2), r3.camera)
+        const hit = ray.intersectObject(r3.scene, true).find(h => h.object.isMesh && !h.object.isSkinnedMesh && !h.object.isInstancedMesh && h.object !== marks.ring)
+        if (hit) orders.set(picked.id, [hit.point.x, hit.point.y, hit.point.z])
+      }
+      addEventListener('pointerdown', pick)
 
+      // The ring at the picked visitor's feet and the line along its route, drawn over everything,
+      // made again on a new client.
+      const mark = () => {
+        const r3 = window.__client?.plugins.render3d
+        if (!r3?.scene) return
+        const T = r3.THREE
+        if (marks.client !== window.__client) {
+          marks.client = window.__client
+          const over = { depthTest: false, transparent: true }
+          marks.ring = new T.Mesh(new T.RingGeometry(0.45, 0.6, 32).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ color: '#ffd400', side: T.DoubleSide, ...over }))
+          marks.line = new T.Line(new T.BufferGeometry(), new T.LineBasicMaterial({ color: '#ffd400', ...over }))
+          for (const o of [marks.ring, marks.line]) { o.renderOrder = 999; o.frustumCulled = false; r3.scene.add(o) }
+        }
+        const v = chosen()
+        marks.ring.visible = marks.line.visible = !!v
+        if (!v) return
+        const feet = bodies.crowd3d.where(v, time())
+        marks.ring.position.set(feet[0], feet[1] + 0.05, feet[2])
+        const path = [feet]
+        const route = v.data.route
+        if (route) for (const leg of route.points.slice(route.leg)) path.push(...(Array.isArray(leg) ? [leg] : leg.spline.points.slice(1)))
+        else if (v.data.speed > 0) path.push(v.data.to)
+        marks.line.geometry.setFromPoints(path.map(p => new T.Vector3(p[0], p[1] + 0.1, p[2])))
+      }
+
+      const readout = document.getElementById('readout')
+      const frames = []
       let last = performance.now(), owed = 0
       const loop = async now => {
+        frames.push(now)
+        while (frames[0] < now - 1000) frames.shift()
+        const worst = frames.slice(1).reduce((m, t, i) => Math.max(m, t - frames[i]), 0)
         owed += Math.min((now - last) / 1000, 0.25)
         last = now
         try {
           page.input()
-          while (owed >= dt) { truth.step(dt); owed -= dt }
+          while (owed >= dt) { truth.step(dt); count(); owed -= dt }
+          const nav = window.__client?.plugins.nav3d
+          if (nav) Object.assign(nav, views)
+          mark()
           await page.frame(owed / dt)
-        } catch (e) { window.__error = e; shown.textContent = String(e?.stack ?? e); owed = 0 }
+        } catch (e) { caught(e) }
+        const p = me()
+        const where = v => (v.data.doing === 'go' ? `sent to ${v.data.told.map(n => n.toFixed(1)).join(', ')}` : v.data.going)
+        readout.textContent = [
+          `${frames.length} fps  longest frame ${worst.toFixed(1)} ms  step ${truth.n}`,
+          p ? `you (${p.data.pos.map(v => v.toFixed(2)).join(', ')}) ${p.data.grounded ? 'on the ground' : 'in the air'}` : '',
+          ...visitors().map(v => `${v.id === picked.id ? '> ' : ''}visitor ${v.id} ${v.data.body}: ${v.data.speed > 0 ? `going to ${where(v)}, ${left(v)} places left` : `standing at ${where(v)}`} at y ${bodies.crowd3d.where(v, time())[1].toFixed(2)}, switched courses ${switches.get(v.id) ?? 0}`),
+          ...errors,
+        ].join('\n')
         requestAnimationFrame(loop)
       }
       requestAnimationFrame(loop)
